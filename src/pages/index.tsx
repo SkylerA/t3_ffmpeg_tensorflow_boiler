@@ -1,3 +1,4 @@
+import { useRef, useState, useEffect } from "react";
 import styles from "./index.module.css";
 import { type NextPage } from "next";
 import Head from "next/head";
@@ -17,7 +18,12 @@ const ffmpeg = createFFmpeg({
 });
 
 const Home: NextPage = () => {
-  async function test_loadFFmpeg() {
+  const imgRef = useRef<HTMLImageElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const [model, setModel] = useState<tf.GraphModel | null>(null);
+
+  async function loadFFmpeg() {
     if (!ffmpeg.isLoaded()) {
       await ffmpeg.load();
     } else {
@@ -25,10 +31,78 @@ const Home: NextPage = () => {
     }
   }
 
-  async function test_loadModel() {
+  async function loadModel() {
     const graphModel = await loadGraphModel("./tfjs_model/model.json");
-    console.log("loaded model: ", graphModel);
+    setModel(graphModel);
   }
+
+  useEffect(() => {
+    loadFFmpeg().catch((e) => console.log(`loadFFmpeg error: ${e}`));
+    loadModel().catch((e) => console.log(`loadFFmpeg error: ${e}`));
+  }, []);
+
+  const infer = async (img: tf.Tensor) => {
+    const img_size = 34;
+    // TODO cache the model
+    // const model = await loadModel();
+    console.log(model);
+
+    const test = img
+      .resizeNearestNeighbor([img_size, img_size])
+      .toFloat()
+      .expandDims();
+    const results = model?.predict(test);
+    const predictions = results?.arraySync();
+
+    const classIdx = results?.as1D().argMax().dataSync()[0];
+
+    console.log(classIdx, predictions);
+  };
+
+  const inferHtmlImg = async (img: HTMLImageElement) => {
+    const tensor = tf.browser.fromPixels(img);
+    await infer(tensor);
+  };
+
+  const inferImage = async (file: File) => {
+    return new Promise((resolve) => {
+      // load file as image
+      const reader = new FileReader();
+      reader.onload = () => {
+        const image = new Image();
+        image.src = reader.result as string;
+        // run inference once image loads
+        image.onload = () => {
+          // this is hardcoded for gg btns currently
+          const img_size = 34;
+          const tensor = tf.browser
+            .fromPixels(image)
+            .resizeNearestNeighbor([img_size, img_size])
+            .toFloat()
+            .expandDims();
+          const results = model.predict(tensor);
+          const predictions = results.arraySync();
+
+          const classIdx = results.as1D().argMax().dataSync()[0];
+
+          // return class index and prediction array for image
+          const retVal = [classIdx, predictions];
+          resolve(retVal);
+        };
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImagesSelected = async (files: File[]) => {
+    if (model) {
+      const results = await Promise.all(
+        Array.from(files).map((file) => inferImage(file))
+      );
+
+      console.log(results);
+    }
+  };
 
   return (
     <>
@@ -39,8 +113,25 @@ const Home: NextPage = () => {
       </Head>
       <main className={styles.main}>
         <div className={styles.container}>
-          <button onClick={test_loadFFmpeg}>test ffmpeg</button>
-          <button onClick={test_loadModel}>test model</button>
+          {/* <button onClick={loadFFmpeg}>test ffmpeg</button>
+          <button onClick={loadModel}>test model</button> */}
+
+          <p>
+            <img ref={imgRef} src="/d.png" />
+            <button onClick={() => inferHtmlImg(imgRef.current)}>infer</button>
+          </p>
+          <p>
+            <label>
+              Infer Loaded Images
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileRef}
+                onChange={(e) => handleImagesSelected(e.currentTarget.files)}
+                multiple
+              />
+            </label>
+          </p>
         </div>
       </main>
     </>
