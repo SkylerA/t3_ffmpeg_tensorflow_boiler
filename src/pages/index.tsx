@@ -3,7 +3,23 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 
+import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
+
+const ffmpeg = createFFmpeg({
+  log: true,
+  // next local dev is finnicky and i can't get it to just load the local copy so we have grab an external copy for dev
+  corePath: "https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js",
+});
+
 const Home: NextPage = () => {
+  async function test_loadFFmpeg() {
+    if (!ffmpeg.isLoaded()) {
+      await ffmpeg.load();
+    } else {
+      console.log("ffmpeg has already been loaded");
+    }
+  }
+
   return (
     <>
       <Head>
@@ -13,6 +29,7 @@ const Home: NextPage = () => {
       </Head>
       <main className={styles.main}>
         <div className={styles.container}>
+          <button onClick={test_loadFFmpeg}>test ffmpeg</button>
           <h1 className={styles.title}>
             Create <span className={styles.pinkSpan}>T3</span> App
           </h1>

@@ -1,3 +1,8 @@
+# Initial Setup Steps
+- `npm install @ffmpeg/ffmpeg @ffmpeg/core`
+- Enable SharedBuffer via Cors Headers. See headers addition to next.config.mjs
+
+
 # Create T3 App
 
 This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
