@@ -3,7 +3,12 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 
+// FFMpeg
 import { createFFmpeg, fetchFile } from "@ffmpeg/ffmpeg";
+// Tensorflow
+import * as tf from "@tensorflow/tfjs";
+import "@tensorflow/tfjs-backend-webgl";
+import { loadGraphModel } from "@tensorflow/tfjs-converter";
 
 const ffmpeg = createFFmpeg({
   log: true,
@@ -20,6 +25,11 @@ const Home: NextPage = () => {
     }
   }
 
+  async function test_loadModel() {
+    const graphModel = await loadGraphModel("./tfjs_model/model.json");
+    console.log("loaded model: ", graphModel);
+  }
+
   return (
     <>
       <Head>
@@ -30,33 +40,7 @@ const Home: NextPage = () => {
       <main className={styles.main}>
         <div className={styles.container}>
           <button onClick={test_loadFFmpeg}>test ffmpeg</button>
-          <h1 className={styles.title}>
-            Create <span className={styles.pinkSpan}>T3</span> App
-          </h1>
-          <div className={styles.cardRow}>
-            <Link
-              className={styles.card}
-              href="https://create.t3.gg/en/usage/first-steps"
-              target="_blank"
-            >
-              <h3 className={styles.cardTitle}>First Steps →</h3>
-              <div className={styles.cardText}>
-                Just the basics - Everything you need to know to set up your
-                database and authentication.
-              </div>
-            </Link>
-            <Link
-              className={styles.card}
-              href="https://create.t3.gg/en/introduction"
-              target="_blank"
-            >
-              <h3 className={styles.cardTitle}>Documentation →</h3>
-              <div className={styles.cardText}>
-                Learn more about Create T3 App, the libraries it uses, and how
-                to deploy it.
-              </div>
-            </Link>
-          </div>
+          <button onClick={test_loadModel}>test model</button>
         </div>
       </main>
     </>

@@ -1,6 +1,22 @@
-# Initial Setup Steps
+# FFMPeg Initial Setup Steps
 - `npm install @ffmpeg/ffmpeg @ffmpeg/core`
 - Enable SharedBuffer via Cors Headers. See headers addition to next.config.mjs
+
+# Tensorflow Initial Setup Steps
+(This was written while working on a mobilenetv3 model that was trained in keras)
+- `npm install @tensorflow/tfjs @tensorflow/tfjs-converter @tensorflow/tfjs-backend-webgl`
+- convert the model
+
+  ```
+  tensorflowjs_converter `
+  --input_format=tf_saved_model `
+  --output_format=tfjs_graph_model `
+  ./path/to/your/model/folder `
+  ./path/to/output/folder
+  ```
+
+- `cp -r /path/to/converted/model public/`
+
 
 
 # Create T3 App
