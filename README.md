@@ -1,3 +1,5 @@
+This is some initial experimentation with getting client side video parsing and inference going in the browser, these are minimal steps to get to a dev environment, but a better approach should be explored for production.
+
 # FFMPeg Initial Setup Steps
 - `npm install @ffmpeg/ffmpeg @ffmpeg/core`
 - Enable SharedBuffer via Cors Headers. See headers addition to next.config.mjs
@@ -15,7 +17,7 @@
   ./path/to/output/folder
   ```
 
-- `cp -r /path/to/converted/model public/`
+- `cp -r /path/to/converted/model public/` (This is only for local dev)
 
 
 
